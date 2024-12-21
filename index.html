@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        display: grid;
+
+        grid-template-columns: auto;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        width: 80%;
+        margin: auto;
+      }
+
+      .mainchild {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        width: 320px;
+        height: 350px;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .mainchild:hover {
+        transform: scale(1.05);
+      }
+
+      img {
+        width: 150%;
+        height: 250px;
+        object-fit: cover;
+        border-bottom: 2px solid #ddd;
+      }
+
+      .mainchild div {
+        padding: 10px;
+        text-align: center;
+      }
+
+      .mainchild div:nth-child(odd) {
+        font-size: 16px;
+        color: #555;
+      }
+
+      .mainchild div:nth-child(even) {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      #search {
+        padding: 10px;
+        font-size: 16px;
+        width: 250px;
+        margin-top: 20px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      #search:focus {
+        border-color: #007bff;
+      }
+
+      button {
+        padding: 10px 15px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .error-msg {
+        color: red;
+        font-size: 30px;
+        font-weight: bolder;
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <input type="text" id="search" placeholder="Search for recipes..." />
+      <button type="submit" onclick="Apicall()">Search</button>
+    </center>
+    <div class="container"></div>
+
+    <script>
+      async function Apicall() {
+        let search_Element = document.getElementById("search").value;
+        try {
+          let data = await fetch(
+            `https://api.edamam.com/search?q=${search_Element}&app_id=a52b4d43&app_key=e0e5c667605f5e91d8275c973531b80a`
+          );
+          let res = await data.json();
+          let Parent_Element = document.querySelector(".container");
+          Parent_Element.innerHTML = ""; // Clear previous results
+
+          if (res.hits.length === 0) {
+            throw new Error("*No Results found*");
+          }
+
+          res.hits.map((val) => {
+            let main_child = document.createElement("div");
+            main_child.className = "mainchild";
+            let img_child = document.createElement("img");
+            let child_2 = document.createElement("div");
+            let child_3 = document.createElement("div");
+            Parent_Element.appendChild(main_child);
+            main_child.append(img_child, child_2, child_3);
+            img_child.src = val.recipe.image;
+            child_2.innerText = `Calories: ${Math.round(
+              val.recipe.calories
+            )} kcal`;
+            child_3.innerText = val.recipe.label;
+          });
+        } catch (error) {
+          let error_msg = document.createElement("div");
+          error_msg.className = "error-msg";
+          error_msg.innerText = error.message;
+          document.body.appendChild(error_msg);
+        }
+      }
+    </script>
+  </body>
+</html>
